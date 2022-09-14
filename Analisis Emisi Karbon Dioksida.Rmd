@@ -1,0 +1,201 @@
+---
+title: "Analisis Emisi Karbon Dioksida"
+author: "Geraldus Wilsen"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### **Soal**
+Unduhlah (download) 1 dataset (bebas) dari Kaggle (https://www.kaggle.com/) atau UCI Machine Learning Repository (https://archive.ics.uci.edu/ml/datasets.php) kemudian identifikasi jenis atributnya dan visualisasikan menggunakan teknik visualisasi yang sudah dijelaskan pada modul ini.
+
+#### **Jawaban**
+Pada tugas kali ini, saya telah mendownload dataset "CO2 Emissions Around the World" melalui Kaggle (https://www.kaggle.com/datasets/koustavghosh149/co2-emission-around-the-world/code?resource=download). Secara singkat, melalui dataset ini kita bisa melihat bagaimana tingkat emisi karbon dari tahun 1990  - 2019 di seluruh dunia. Data ini sudah melalui **tahap pre - processing yang saya lakukan dengan menggunakan bantuan pyhton dan excel**. Secara detail dapat dilihat melalui tabel berikut:
+
+```{r}
+setwd("C:/Users/LENOVO/OneDrive - Universitas Airlangga/SEMESTER 3/EVD")
+data = read.csv("CO2_emission.csv")
+head(data)
+```
+
+##### **Identifikasi Atribut**
+
+```{r}
+ls(data)
+```
+Melalui tabel diatas, saya telah mengidentifikasi setiap atribut variabel sebagai berikut:
+
+Nama Variabel | Jenis Atribut | Alasan
+------------- | ------------- | ---------
+Country Name  | Kualitatif Nominal | Variabel "Country Name" menunjukkan nama - nama setiap negara yang ada di dunia, artinya variabel ini tidak mengukur besaran tetapi hanya sebagai penggolongan saja
+Country Code  | Kualitatif Nominal | Variabel "Country Code" menunjukkan kode setiap negara yang ada di dunia, artinya variabel ini tidak mengukur besaran tetapi hanya sebagai penggolongan saja 
+Region  | Kualitatif Nominal | Variabel "Region" menunjukkan klasifikasi area setiap negara yang ada di dunia, artinya variabel ini tidak mengukur besaran tetapi hanya sebagai penggolongan saja
+Class | Kualitatif Biner | Variabel "Class" menunjukkan apakah kadar emisi suatu karbon suatu negara diatas atau dibawah rata - data, sehingga tidak bisa dilakukan perhitungan serta memenuhi kriteria data biner
+X1990 - X2019 | Kuantitatif Kontinu ( Skala: Rasio) | Variabel "1990" sampai dengan variabel "2019" menunjukkan data numerik ( tingkat CO2) setiap negara sepanjang tahun 1990 sampai 2019. Tingkat CO 2 memiliki nilai 0 mutlak. Artinya ketika dikonversikan ke satuan ukur lain atau diukur dengan alat ukur lain, ketika hasilnya 0 maka akan selalu tetap 0. Maka dari itu, variabel ini dikategorikan dalam skala perhitungan rasio, dan juga bersifat kontinu
+
+##### **Visualisasi**
+
+Pertama, saya telah menginstall beberpaa library yang akan saya gunakan sebagai berikut:
+```{r}
+library(ggplot2)
+library(ggthemes)
+library(tidyverse)
+```
+
+Setelah itu, saya menjawab beberapa pertanyaan berikut melalui visualisasi data:
+
+**1. Dari 191 negara di dunia, berapa jumlahnya jika dibagi berdasarkan region? (Bar Chart)**
+```{r}
+ggplot(data,aes(x=Region,fill = Region)) +
+  geom_bar(color = "white")+
+  labs(title = "Number of Country from each Region",
+       subtitle = "How this 191 data differ by region?",
+       x = "Region",
+       y = "Frequency")+
+  theme_fivethirtyeight()+
+  theme(axis.text.x = element_text(angle=90,size = 7))+
+  theme(axis.title = element_text(size = 10))+
+  scale_fill_manual(values = c("East Asia & Pacific" = "#DCD7C9",
+                                "Europe & Central Asia"= "#3F4E4F",
+                                "Latin America & Caribbean" ="#A27B5C",
+                                "Middle East & North Africa" = "#2C3639",
+                                "North America" = "#0F3D3E",
+                                "South Asia" = "#E2DCC8",
+                                "Sub-Saharan Africa" = "#100F0F"))
+```
+
+Dari visualisasi diatas, saya mendapatkan kesimpulan dimana dari 191 data negara yang ada dalam dataset ini, region dengan negara paling banyak adalah "Europe & Central Asia" dengan 50 negara
+
+**2. Kadar CO2 pada tahun 2019? ( Histogram, Kernel Density Plot)**
+```{r}
+ggplot(data,aes(X2019)) +
+  geom_histogram(fill = "dark gray",color= "black")+
+  labs(x = "CO2 Emmissions",y = "Frequency",title = "CO2 Emmissions in 2019 Around the World", subtitle ="How is the distribution in 2019?")+
+  theme_fivethirtyeight()+
+  theme(axis.title = element_text(size= 10))
+```
+```{r}
+ggplot(data,aes(x = X2019))+
+  geom_density(fill = "dark gray")+
+  labs(x = "CO2 Emmissions",y = "Frequency",title = "CO2 Emmissions in 2019 Around the World", subtitle ="How is the distribution in 2019?")+
+  theme_fivethirtyeight()
+```
+
+Melalui Histogram dan Kernel plot diatas, saya dapat menarik sebuah kesimpulan bahwa kadar CO2 dalam rentang 0 - 2 adalah yang terbannyak, dan grafik semakin landai, artinya semakin sedikit jumlah negara yang mengeluarkan emisi karbondioksida dalam kadar tinggi
+
+**3. Pada tahun 2019, berapa banyak negara yang masuk dalam kategori kadar CO2 dibawah maupun diatas rata - rata (4.134273353 metric tons per capita)? Dari region mana yang paling besar? (Stacked, Grouped, Segmented bar charts)**
+```{r}
+ggplot(data,aes(Class,fill = Region)) +
+  geom_bar(position= "stack")+
+  labs(x = "CO2 Emmissions",y = "Frequency",title = "CO2 Emmissions in 2019 Around the World", subtitle ="How is the distribution in 2019?")+
+  theme_fivethirtyeight()+
+  theme(axis.title = element_text(size= 10))+
+  scale_fill_manual(values = c("East Asia & Pacific" = "#DCD7C9",
+                                "Europe & Central Asia"= "#3F4E4F",
+                                "Latin America & Caribbean" ="#A27B5C",
+                                "Middle East & North Africa" = "#2C3639",
+                                "North America" = "#0F3D3E",
+                                "South Asia" = "#E2DCC8",
+                                "Sub-Saharan Africa" = "#100F0F"))
+```
+```{r}
+ggplot(data,aes(Class,fill = Region)) +
+  geom_bar(position= "dodge")+
+  labs(x = "CO2 Emmissions",y = "Frequency",title = "CO2 Emmissions in 2019 Around the World", subtitle ="How is the distribution in 2019?")+
+  theme_fivethirtyeight()+
+  theme(axis.title = element_text(size= 10))+
+  scale_fill_manual(values = c("East Asia & Pacific" = "#DCD7C9",
+                                "Europe & Central Asia"= "#3F4E4F",
+                                "Latin America & Caribbean" ="#A27B5C",
+                                "Middle East & North Africa" = "#2C3639",
+                                "North America" = "#0F3D3E",
+                                "South Asia" = "#E2DCC8",
+                                "Sub-Saharan Africa" = "#100F0F"))
+```
+```{r}
+ggplot(data,aes(Class,fill = Region)) +
+  geom_bar(position= "fill")+
+  labs(x = "CO2 Emmissions",y = "Proportion",title = "CO2 Emmissions in 2019 Around the World", subtitle ="How is the distribution in 2019?")+
+  theme_fivethirtyeight()+
+  theme(axis.title = element_text(size= 10))+
+  scale_fill_manual(values = c("East Asia & Pacific" = "#DCD7C9",
+                                "Europe & Central Asia"= "#3F4E4F",
+                                "Latin America & Caribbean" ="#A27B5C",
+                                "Middle East & North Africa" = "#2C3639",
+                                "North America" = "#0F3D3E",
+                                "South Asia" = "#E2DCC8",
+                                "Sub-Saharan Africa" = "#100F0F"))
+```
+
+Melalui Stacked, Grouped dan Segmented Bar Chart diatas, saya dapat menarik sebuah kesimpulan dimana negara - negara yang memiliki kadar emisi karbon dioksida diatas rata" terbanyak dari region Europe & Central Asia, sedangkan Sub - Saharan sebagai region dengan jumlah negara paling banyak penyumbang emisi karbon dibawah rata- rata.
+
+**4.Bagaimana tren kadar CO2 Indonesia dibandingkan negara ASEAN lainnya?( Multiple Line Chart)**
+
+```{r}
+trend = read.csv("pivotdata.csv")
+head(trend)
+
+trend %>%
+  mutate(isIndonesia = (Country == "Indonesia")) %>%
+  ggplot(aes(x = Year, y = CO2, color = Country)) +
+  geom_line(aes(linetype = isIndonesia),size = 1.5, alpha = 0.8) +
+  labs(title = "CO2 Emmission Trend in 4 Most Populated Countries",
+       x = "Year",
+       y = "CO2 Emmission",
+       color = "Country")+
+  theme_fivethirtyeight()+
+  theme(axis.title = element_text())+
+  scale_linetype_manual(values=c("dashed","solid"),guide ="none")+
+  scale_color_manual(values = c("Indonesia" = "#87805E",
+                                "united States"= "#B09B71",
+                                "China" ="#D8CCA3",
+                                "India" = "#EDDFB3"))
+  
+```
+
+Melalui visualisasi ini, saya dapat menjawab hipotesis bahwa jumlah masyarakat sebuah negara memengaruhi jumlah emisi karbon yang dihasilkan. Walaupun tidak 100% dapat dikatakan memengaruhi, namun saya mampu menyimpulkan bahwa majunya industralisasi sebuah negara memengaruhi jumlah emisi karbon dioksida. Hal ini ditunjukkan oleh Amerika pada tahun 1990 merupakan negara paling maju dalam industri, sehingga memiliki emisi karbon sebesar kurang lebih 20 million per capita. Disisi lain, pada saat itu, China, Indonesia dan India masih belum semasif Amerika. Namun seiring perkembangan zaman. Ketiga negara tersebut mulai berkembang dan terlihat sangat jelas China sebagai negara yang saat ini maju dalam industri, meningkat secara cukup signifikan pada tahun 2019. Begitu pula dengan India dan Indonesia yang kian meningkat setiap tahunnya.
+
+**5. Bagaimana statistik numerik antara region dengan rata - rata kadar CO2 dalam 29 tahun ke belakang? (Ridgeline Plot)**
+
+```{r}
+avg = read.csv("avg.csv")
+head(avg)
+library(ggridges)
+ggplot(avg,aes(x = Average,
+                y = Region,
+                fill = Region))+
+  geom_density_ridges()+
+  theme_ridges()+
+  labs("CO2 Emmissions")+
+  theme_fivethirtyeight()+
+  theme(legend.position = "none")+
+  scale_fill_manual(values = c("East Asia & Pacific" = "#DCD7C9",
+                                "Europe & Central Asia"= "#3F4E4F",
+                                "Latin America & Caribbean" ="#A27B5C",
+                                "Middle East & North Africa" = "#2C3639",
+                                "North America" = "#0F3D3E",
+                                "South Asia" = "#E2DCC8",
+                                "Sub-Saharan Africa" = "#100F0F"))
+```
+
+Melalui ridgeline plot diatas, saya mendapatkan beberapa kesimpulan, dimana SUb Saharan Africa, Latin America, serta South Asia memiliki distribusi emisi karbon dioksida dalam rentang rendah. Sedangkan terdapat beberapa negara yang menghasilkan emisi karbon cukup tinggi seperti di region Middle East & North Africa. Walaupun begitu, jika dibandingkan dengan region Europe & Central Asia, negara - negara di kawasan ini memiliki rata" yang jauh lebih tinggi dibandingkan kawasan lainnya. Terakhir ada East Asia & Pacific, yang mayoritas emisi karbon nya dalam rentang rendah, namun adapula beberapa negara yang menghasilkan emisi cukup tinggi di kisaran 10 - 20.
+
+**6. Bagaimana statistik numerik kadar CO2 di seluruh region East Asia & Pacific pada tahun 2019? (Cleveland Dot Chart)**
+```{r}
+data1 = subset(data,Region == "East Asia & Pacific")
+ggplot(data1,
+       aes(x=X2019,y = reorder(Country.Name,X2019)))+
+   geom_point()+
+       labs(title = "CO2 Emmission in East Asia & Pacific Region",
+           x = "CO 2 Emmision",
+           y = "Country") +
+      theme_fivethirtyeight()+
+      theme(axis.title = element_text())
+```
+
+Dari visualisasi ini, saya mendapatkan kesimpulan bahwa pada tahun 2019 mayoritas negara - negara di East Asia & Pacific menghasilkan emisi karbon dengan kadar 0 - 5. Adapun negara sebagai penyumbang emisi karbon dengan kadar paling rendah adalah Kepulauan Solomon, dan yang paling tinggi adalah Brunei Darusallam
+
